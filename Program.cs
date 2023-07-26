@@ -1,7 +1,9 @@
+using ApiNet7.Extensions;
+using ApiNet7.Repositories;
 using Microsoft.EntityFrameworkCore;
-using WebApplication1.Data;
+using ApiNet7.Data;
 
-namespace WebApplication1
+namespace ApiNet7
 {
     public class Program
     {
@@ -14,8 +16,10 @@ namespace WebApplication1
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            builder.Services.AddScopedServices();
+
             builder.Services.AddDbContext<AppDbContext>(options =>
-        options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+             options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             // «апуск инициализации базы данных (если ее нет)
             using (var scope = builder.Services.BuildServiceProvider().CreateScope())

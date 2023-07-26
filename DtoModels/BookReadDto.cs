@@ -1,16 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace ApiNet7.Models
+namespace ApiNet7.DtoModels
 {
-    public class Book
+    public class BookReadDto
     {
-        [Key]
-        public int Id { get; set; }
-
-        [Required]
         public Guid Guid { get; set; }
-
-        [Required]
         public string Title { get; set; }
 
         public string Author { get; set; }

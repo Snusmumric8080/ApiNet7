@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 
-namespace WebApplication1.Data
+namespace ApiNet7.Data
 {
     public class AppDbContext : DbContext
     {

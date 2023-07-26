@@ -1,24 +1,26 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using WebApplication1.Data;
-using WebApplication1.Models;
+using ApiNet7.Data;
+using ApiNet7.Models;
+using ApiNet7.Repositories;
+using Microsoft.EntityFrameworkCore;
 
-namespace WebApplication1.Controllers
+namespace ApiNet7.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
     public class BooksController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly IBookRepository _bookRepository;
 
-        public BooksController(AppDbContext context)
+        public BooksController(IBookRepository bookRepository)
         {
-            _context = context;
+            _bookRepository = bookRepository;
         }
 
         [HttpGet]
         public ActionResult<IEnumerable<Book>> GetBooks()
         {
-            var books = _context.Books.ToList();
+            var books = _bookRepository.GetBooks();
             return Ok(books);
         }
 
@@ -27,8 +29,7 @@ namespace WebApplication1.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Books.Add(book);
-                _context.SaveChanges();
+                _bookRepository.CreateBook(book);
                 return CreatedAtAction(nameof(GetBookById), new { id = book.Id }, book);
             }
             return BadRequest(ModelState);
@@ -37,7 +38,7 @@ namespace WebApplication1.Controllers
         [HttpGet("{id}")]
         public ActionResult<Book> GetBookById(int id)
         {
-            var book = _context.Books.Find(id);
+            var book = _bookRepository.GetBookById(id);
             if (book == null)
             {
                 return NotFound();
@@ -45,35 +46,28 @@ namespace WebApplication1.Controllers
             return Ok(book);
         }
 
-        [HttpPut("{id}")]
-        public IActionResult UpdateBook(int id, Book updatedBook)
+        [HttpGet("get/{guid}")]
+        public ActionResult<Book> GetBookByGuid(Guid guid)
         {
-            var book = _context.Books.Find(id);
+            var book = _bookRepository.GetBookByGuid(guid);
             if (book == null)
             {
                 return NotFound();
             }
+            return Ok(book);
+        }
 
-            book.Title = updatedBook.Title;
-            book.Author = updatedBook.Author;
-            book.Year = updatedBook.Year;
-            _context.SaveChanges();
-
+        [HttpPut("update/{guid}")]
+        public IActionResult UpdateBook(Guid guid, Book updatedBook)
+        {
+            _bookRepository.UpdateBook(guid, updatedBook);
             return NoContent();
         }
 
-        [HttpDelete("{id}")]
-        public IActionResult DeleteBook(int id)
+        [HttpDelete("del/{guid}")]
+        public IActionResult DeleteBook(Guid guid)
         {
-            var book = _context.Books.Find(id);
-            if (book == null)
-            {
-                return NotFound();
-            }
-
-            _context.Books.Remove(book);
-            _context.SaveChanges();
-
+            _bookRepository.DeleteBook(guid);
             return NoContent();
         }
     }
