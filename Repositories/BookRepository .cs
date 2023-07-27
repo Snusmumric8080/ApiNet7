@@ -1,18 +1,15 @@
 ﻿using ApiNet7.Data;
 using ApiNet7.Models;
-using static ApiNet7.Repositories.IUnitOfWork;
 
 namespace ApiNet7.Repositories
 {
     public class BookRepository : IBookRepository
     {
         private readonly AppDbContext _context;
-        private readonly IUnitOfWork _unitOfWork;
 
-        public BookRepository(AppDbContext context, IUnitOfWork unitOfWork)
+        public BookRepository(AppDbContext context)
         {
             _context = context;
-            _unitOfWork = unitOfWork;
         }
 
         public IEnumerable<Book> GetBooks()

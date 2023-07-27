@@ -3,6 +3,8 @@ using ApiNet7.Data;
 using ApiNet7.Models;
 using ApiNet7.Repositories;
 using Microsoft.EntityFrameworkCore;
+using AutoMapper;
+using ApiNet7.DtoModels;
 
 namespace ApiNet7.Controllers
 {
@@ -11,50 +13,62 @@ namespace ApiNet7.Controllers
     public class BooksController : ControllerBase
     {
         private readonly IBookRepository _bookRepository;
+        private readonly IMapper _mapper;
 
-        public BooksController(IBookRepository bookRepository)
+        public BooksController(IBookRepository bookRepository, IMapper mapper)
         {
             _bookRepository = bookRepository;
+            _mapper = mapper;
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<Book>> GetBooks()
+        public ActionResult<IEnumerable<BookReadDto>> GetBooks()
         {
             var books = _bookRepository.GetBooks();
-            return Ok(books);
+            var result = _mapper.Map<IEnumerable<BookReadDto>>(books);
+
+            return Ok(result);
         }
 
         [HttpPost]
-        public ActionResult<Book> CreateBook(Book book)
+        public ActionResult<BookReadDto> CreateBook(BookCreateDto bookCreateDto)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                _bookRepository.CreateBook(book);
-                return CreatedAtAction(nameof(GetBookById), new { id = book.Id }, book);
+                return BadRequest(ModelState);
             }
-            return BadRequest(ModelState);
+
+            var bookEntity = _mapper.Map<Book>(bookCreateDto);
+            _bookRepository.CreateBook(bookEntity);
+
+            var bookReadDto = _mapper.Map<BookReadDto>(bookEntity);
+            return CreatedAtAction(nameof(GetBookByGuid), new { guid = bookReadDto.Guid }, bookReadDto);
         }
 
         [HttpGet("{id}")]
-        public ActionResult<Book> GetBookById(int id)
+        public ActionResult<BookReadDto> GetBookById(int id)
         {
             var book = _bookRepository.GetBookById(id);
             if (book == null)
             {
                 return NotFound();
             }
-            return Ok(book);
+
+            var result = _mapper.Map<BookReadDto>(book);
+            return Ok(result);
         }
 
         [HttpGet("get/{guid}")]
-        public ActionResult<Book> GetBookByGuid(Guid guid)
+        public ActionResult<BookReadDto> GetBookByGuid(Guid guid)
         {
             var book = _bookRepository.GetBookByGuid(guid);
             if (book == null)
             {
                 return NotFound();
             }
-            return Ok(book);
+
+            var result = _mapper.Map<BookReadDto>(book);
+            return Ok(result);
         }
 
         [HttpPut("update/{guid}")]
