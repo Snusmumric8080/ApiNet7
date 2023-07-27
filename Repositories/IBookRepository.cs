@@ -8,7 +8,7 @@ namespace ApiNet7.Repositories
         Book GetBookById(int id);
         Book GetBookByGuid(Guid guid);
         void CreateBook(Book book);
-        void UpdateBook(Guid guid, Book updatedBook);
+        void UpdateBook(Book updatedBook);
         void DeleteBook(Guid guid);
     }
 }

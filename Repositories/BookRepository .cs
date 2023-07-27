@@ -33,21 +33,15 @@ namespace ApiNet7.Repositories
             _context.SaveChanges();
         }
 
-        public void UpdateBook(Guid guid, Book updatedBook)
+        public void UpdateBook(Book updatedBook)
         {
-            var book = _context.Books.FirstOrDefault(r => r.Guid == guid);
-            if (book != null)
-            {
-                book.Title = updatedBook.Title;
-                book.Author = updatedBook.Author;
-                book.Year = updatedBook.Year;
-                _context.SaveChanges();
-            }
+            var book = _context.Books.Update(updatedBook);
+            _context.SaveChanges();
         }
 
         public void DeleteBook(Guid guid)
         {
-            var book = _context.Books.FirstOrDefault(r => r.Guid == guid);
+            var book = GetBookByGuid(guid);
             if (book != null)
             {
                 _context.Books.Remove(book);

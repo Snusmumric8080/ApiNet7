@@ -5,6 +5,7 @@ using ApiNet7.Repositories;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
 using ApiNet7.DtoModels;
+using ApiNet7.Service;
 
 namespace ApiNet7.Controllers
 {
@@ -12,21 +13,16 @@ namespace ApiNet7.Controllers
     [Route("api/[controller]")]
     public class BooksController : ControllerBase
     {
-        private readonly IBookRepository _bookRepository;
-        private readonly IMapper _mapper;
-
-        public BooksController(IBookRepository bookRepository, IMapper mapper)
+        private readonly IBookService _bookService;
+        public BooksController(IBookService bookService)
         {
-            _bookRepository = bookRepository;
-            _mapper = mapper;
+            _bookService = bookService;
         }
 
         [HttpGet]
         public ActionResult<IEnumerable<BookReadDto>> GetBooks()
         {
-            var books = _bookRepository.GetBooks();
-            var result = _mapper.Map<IEnumerable<BookReadDto>>(books);
-
+            var result = _bookService.GetBooks();
             return Ok(result);
         }
 
@@ -38,50 +34,45 @@ namespace ApiNet7.Controllers
                 return BadRequest(ModelState);
             }
 
-            var bookEntity = _mapper.Map<Book>(bookCreateDto);
-            _bookRepository.CreateBook(bookEntity);
-
-            var bookReadDto = _mapper.Map<BookReadDto>(bookEntity);
-            return CreatedAtAction(nameof(GetBookByGuid), new { guid = bookReadDto.Guid }, bookReadDto);
+            var createdBook = _bookService.CreateBook(bookCreateDto);
+            return CreatedAtAction(nameof(GetBookByGuid), new { guid = createdBook.Guid }, createdBook);
         }
 
         [HttpGet("{id}")]
         public ActionResult<BookReadDto> GetBookById(int id)
         {
-            var book = _bookRepository.GetBookById(id);
-            if (book == null)
+            var result = _bookService.GetBookById(id);
+            if (result == null)
             {
                 return NotFound();
             }
 
-            var result = _mapper.Map<BookReadDto>(book);
             return Ok(result);
         }
 
         [HttpGet("get/{guid}")]
         public ActionResult<BookReadDto> GetBookByGuid(Guid guid)
         {
-            var book = _bookRepository.GetBookByGuid(guid);
-            if (book == null)
+            var result = _bookService.GetBookByGuid(guid);
+            if (result == null)
             {
                 return NotFound();
             }
 
-            var result = _mapper.Map<BookReadDto>(book);
             return Ok(result);
         }
 
         [HttpPut("update/{guid}")]
-        public IActionResult UpdateBook(Guid guid, Book updatedBook)
+        public IActionResult UpdateBook(Guid guid, BookUpdateDto updatedBook)
         {
-            _bookRepository.UpdateBook(guid, updatedBook);
+            _bookService.UpdateBook(guid, updatedBook);
             return NoContent();
         }
 
         [HttpDelete("del/{guid}")]
         public IActionResult DeleteBook(Guid guid)
         {
-            _bookRepository.DeleteBook(guid);
+            _bookService.DeleteBook(guid);
             return NoContent();
         }
     }

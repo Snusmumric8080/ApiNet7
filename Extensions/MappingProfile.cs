@@ -8,7 +8,7 @@ namespace ApiNet7.Extensions
     {
         public MappingProfile()
         {
-            CreateMap<Book, BookReadDto>();            
+            CreateMap<Book, BookReadDto>();
             CreateMap<BookUpdateDto, Book>();
             CreateMap<BookCreateDto, Book>()
                 .AfterMap((dto, entity) =>
